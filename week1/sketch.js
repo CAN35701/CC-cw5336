@@ -2,14 +2,14 @@
 // this is the only part of the file you need to edit!
 
 const quotes = [
-  { text: "the intersection of programming, design, and art", source: "Scott" },
-  { text: "a chance for code to be wrong", source: "Sara" },
-  { text: "surprise, exploration, and aesthetic exploration", source: "Sally" },
-  { text: "process over results", source: "Sam" },
-  { text: "form over function", source: "Sean" },
-  { text: "iterative and experimental", source: "Scooby" },
-  { text: "a community of practice", source: "Seth" },
-  { text: "an opportunity to stick it to the man", source: "Shifty-eyed Susan" }
+  { text: "the practice of making art with code", source: "Andrew" },
+  { text: "a school of thought", source: "Tim" },
+  { text: "a new interdisciplinary art form", source: "Ahmad" },
+  { text: "about experimentation, not functionality", source: "Maura" },
+  { text: "about free exploration", source: "Patrik" },
+  { text: "a set of software platforms", source: "Axelle" },
+  { text: "suggesting programming visuals is always a creative activity", source: "Régis" },
+  { text: "the intersection of art and technology", source: "Javier" }
 ];
 // no need to edit anything below this line! 
 // if you have made an error, you can check your history to see what might have gone wrong
@@ -22,7 +22,7 @@ function setup() {
   // Seed with millis() so each page load gives a different quote.
   randomSeed(millis());
   textSize(32);
-  fill(10, 255, 10);
+  fill(50, 0, 255);
   // calls the function to pick a quote
   pickQuote();
 }
@@ -33,15 +33,15 @@ function pickQuote() {
 }
 
 function draw() {
-  background(255, 20, 250); // set the background color
+  background(255, 255, 200); // set the background color
   drawQuote();  // draw the quote on screen
 }
 
 function drawQuote() {   // draw text
   textAlign(CENTER, CENTER);
   text("Creative Coding is.....", width / 2, height / 2 - 48);
-  textStyle(BOLD);
-  text("'" + current.text + "'", width / 2, height / 2);
+  textStyle(BOLDITALIC);
+  text("<" + current.text + ">", width / 2, height / 2);
   textAlign(RIGHT, CENTER);
   text("-" + current.source, width - 100, height - 100);
 
