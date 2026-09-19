@@ -4,6 +4,7 @@
 // Review the index.html for the <script></script> 
 let r = 0;
 
+
 function setup() {
   createCanvas(500, 500);
   background(0,130,255);
@@ -95,8 +96,10 @@ function draw() {
   if (mouseIsPressed == true){
     for (i = 0; i < 18; i++){
       if (i % 2 == 0) {
+        r -=0.001;
         bird02();  
       }else{
+        r -=0.001;
         bird01(); 
       }
     }
@@ -104,6 +107,7 @@ function draw() {
   if(mouseIsPressed == false){
     for (i = 0; i < 18; i++){
       if (i % 2 == 0) {
+        r -=0.001;
         bird01();  
       }else{
         bird02(); 
