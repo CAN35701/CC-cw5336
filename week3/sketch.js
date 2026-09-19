@@ -2,9 +2,15 @@
 // https://github.com/liz-peng/p5.Polar
 // https://liz-peng.github.io/p5.Polar/
 // Review the index.html for the <script></script> 
+let r = 0;
+
 function setup() {
   createCanvas(500, 500);
   background(0,130,255);
+}
+
+function mouseMoved(){
+  r -= 0.01;
 }
 
 
@@ -83,7 +89,8 @@ function draw() {
   setCenter(width/2, height/2);
   noStroke();
   scale(1.8);
-  rotate((10000-mouseX+mouseY)/500);
+  //rotate((10000-mouseX+mouseY)/500);
+  rotate(r);
   push();
   if (mouseIsPressed == true){
     for (i = 0; i < 18; i++){
