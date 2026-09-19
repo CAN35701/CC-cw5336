@@ -126,5 +126,5 @@ function draw() {
   textStyle(BOLDITALIC)
   textAlign(CENTER, CENTER);
   textSize(20);
-  text("Press the mouse \n to make the bird flap its wings\nMove the mouse\n to rotate the flock of birds", 250, 250);
+  text("Press the mouse \n to make the birds flap their wings\nMove the mouse\n to rotate the flock of birds", 250, 250);
 }
