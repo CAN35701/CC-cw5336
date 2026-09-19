@@ -9,7 +9,6 @@ function setup() {
 // build function bird
 function bird01(){
   const a = i*j;
-  rotate(0.3);
   noStroke();
   fill(0,0,0,(20*a)+50);
   triangle(0, 20, 50, 20, 75, 0);
@@ -21,7 +20,6 @@ function bird01(){
 }
 function bird02(){
   const a = i*j;
-  rotate(0.3);
   noStroke();
   fill(0,0,0,(20*a)+50);
   triangle(0, 20, 50, 20, 50, 0);
