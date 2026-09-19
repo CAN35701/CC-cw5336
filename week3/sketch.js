@@ -96,10 +96,10 @@ function draw() {
   if (mouseIsPressed == true){
     for (i = 0; i < 18; i++){
       if (i % 2 == 0) {
-        r -=0.001;
+        r -=0.0008;
         bird02();  
       }else{
-        r -=0.001;
+        r -=0.0008;
         bird01(); 
       }
     }
@@ -107,7 +107,7 @@ function draw() {
   if(mouseIsPressed == false){
     for (i = 0; i < 18; i++){
       if (i % 2 == 0) {
-        r -=0.001;
+        r -=0.0008;
         bird01();  
       }else{
         bird02(); 
