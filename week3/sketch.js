@@ -7,6 +7,7 @@ function setup() {
   background(0,130,255);
 }
 
+
 function bird01(){
   scale (0.75);
   polarEllipses(12, 30, 20, 180, function(...args) {
@@ -39,6 +40,8 @@ function bird01(){
     });
 }
 
+
+
 function bird02(){
   scale (0.75);
   polarEllipses(12, 29, 29, 180, function(...args) {
@@ -70,6 +73,9 @@ function bird02(){
         return args;     
     });
 }
+
+
+
 
 function draw() {
   background(0,130,255);
