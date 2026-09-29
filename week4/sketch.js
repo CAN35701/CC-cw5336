@@ -34,6 +34,7 @@ function draw(){
   // define your drawing below
   push();
   stroke(0,50,200);
+  //stroke('cyan');
   translate(width/2, height/2);
   let na = map(mouseX, 0, width, 3, 7);
   let nb = map(mouseY, 0, height, 3, 7);
@@ -165,6 +166,7 @@ function earth(){
   push();
   for (i = 0; i < 55; i++) {
   stroke(255,50,0);
+  //stroke('magenta');
   let n = 30 * noise(i*0.2); 
   rotate(random(0.12,0.3)); 
   ellipse(130+n, 0, random(2,5),random(5,10));
