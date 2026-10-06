@@ -72,7 +72,10 @@ function draw() {
     sunClock();
   pop();
 
+  push();
+  rotate(millis()/1000);
   plantClock();
+  pop();
 
 }
 //------------------------------
