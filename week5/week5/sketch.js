@@ -1,5 +1,8 @@
 let k = 0;
 let speed = 0.2;
+let l = 0;
+let speed2 = 0.05;
+
 
 function setup() {
   let canvas = createCanvas(500, 500);
@@ -17,6 +20,11 @@ function draw() {
   if ( k >= 60 || k <= 0) {
     speed = speed * -1;
   }
+  l = l+speed2;
+  if ( l >= 30 || l <= 0) {
+    speed2 = speed2 * -1;
+  }
+
   for (let a = 0; a < 2; a++) {
     push();
     rotate(a * 180);
@@ -28,7 +36,7 @@ function draw() {
   push();
     rotate(45);
     scale(0.8,1.5);
-    rotate(millis()/1000*12);
+    rotate(millis()/1000*10);
     for (x=0;x<12;x++) {
       scale(0.8);
       rotate(5);
@@ -66,7 +74,7 @@ function draw() {
   pop();
 
   push();
-    rotate(70);
+    rotate(90-l);
     scale(0.4,2.3);
     rotate(millis()/1000*16);
     sunClock();
