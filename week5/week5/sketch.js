@@ -15,11 +15,22 @@ function draw() {
   fill(255);
   ellipse(0,0,495);
 
-  for(c=0;c<24;c++){
-  fill(255,255,255,30);
-  noStroke();
-  ellipse(0,0,450-c*20);
-  }
+  angleMode(DEGREES);
+  push();
+    rotate(285);
+    scale(0.6,1.2);
+    rotate(millis()/1000*12);
+    for (x=0;x<12;x++) {
+      rotate(5);
+      noFill();
+      stroke(40,60,230);
+      strokeWeight(1);
+      moonClock();
+      fill(255,255,0,60);
+      noStroke();
+      moonClock();
+    }
+  pop();
 
   noFill();
   strokeWeight(1);
@@ -89,23 +100,6 @@ function draw() {
       moonClock();
       noStroke();
       fill(250,80,100,60);
-      moonClock();
-    }
-  pop();
-
-
-  push();
-    rotate(285);
-    scale(0.6,1.2);
-    rotate(millis()/1000*12);
-    for (x=0;x<12;x++) {
-      rotate(5);
-      noFill();
-      stroke(0,0,150);
-      strokeWeight(1);
-      moonClock();
-      fill(255,255,0,60);
-      noStroke();
       moonClock();
     }
   pop();
