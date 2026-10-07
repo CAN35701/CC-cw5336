@@ -209,7 +209,10 @@ function birdClock() {
     rotate(a*2);
     translate(0,180);
     rotate(sp%360);
-      triangle(16,0,-16,-16,-16,16);
+    for (i=0;i<8;i++) {
+      //triangle(16,0,-16,-16,-16,16);//white bird
+      triangle(16-i*2,0,i*2-16,i*2-16,i*2-16,16-i*2);//bird with more decoration
+    }
     pop();
 
     // daytime
@@ -374,6 +377,9 @@ function plantClock() {
   pop();
 }
 
+
+//Below are some functions I wrote last week 
+// I use them to represent humans
 //---------------------------------------
 function smallHouse(na) {
   for (i=0; i<na; i++) {
