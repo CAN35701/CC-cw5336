@@ -323,9 +323,9 @@ function plantClock() {
   let n = tm*sp;
   for (i=0;i<n;i++) {
     let dis = 200-i*1;
-    // if(dis<0) {
-    //   dis = 0;
-    // }
+    if(dis<0) {
+      dis = 0;
+    }
     push();
     rotate(i * 1.5);
     translate(dis, 0);
