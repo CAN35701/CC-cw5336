@@ -159,19 +159,9 @@ function sunClock() {
   let sr; // sunrise
   let ss; // sunset
 
-  if (m>=3 && m<=5) {
-    sr = 6;
-    ss = 19;
-  } else if (m>=6 && m<=8) {
-    sr = 5;
-    ss = 20;
-  } else if (m>=9 && m<=11) {
-    sr = 6.5;
-    ss = 18;
-  } else {
-    sr = 7;
-    ss = 17;
-  }
+  sr = 6-1.5*sin((360/365)*(day() - 81));
+  ss = 18-1.5*sin((360/365)*(day() - 81));
+  //I use LLM to get this formula 
 
   let st = hour() + minute()/60;//suntime
 
@@ -287,9 +277,10 @@ function tideClock(){
   let s = second();
   let tt = h+mi/60+s/3600;//tide time
   let t = cos(360*tt/12.42);
+  let th = 80*cos(tt*0.00014)+25*cos(tt*0.000145);//I use LLM to get this formula
   //The tidal formula involves the COS function.
   //This is not for drawing, but for computation.
-  let ln = map(t,-1,1,6,48);
+  let ln = map(t,-1,1,6,48);//line number
   //console.log(t, ln);
   for (i = 0; i < ln; i++) {
     let y = i*5+50;
