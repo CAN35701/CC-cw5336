@@ -3,7 +3,7 @@ let letters = [];
 let speed = 0.1;
 
 class Letter {
-  constructor(x, y, c, r) {
+  constructor(x,y,c,r) {
     this.x = x;
     this.y = y;
     this.c = c;
