@@ -1,89 +1,195 @@
+let faceMesh;
 let handPose;
 let video;
 let hands = [];
+let faces = [];
+let options = { maxFaces: 1, refineLandmarks: false, flipHorizontal: false };
+
+let images = [];
+let videos = [];
+let meme = [];
+
+let onFaceVideo = -1;
 
 async function setup() {
-  createCanvas(640, 480);
-  
-  // Load the handPose model asynchronously
+  createCanvas(windowWidth, windowHeight);
+  pixelDensity(1);
+  imageMode(CENTER);
+
+  images[0] = await loadImage("media/goat.png");
+  images[1] = await loadImage("media/dog.png");
+  images[2] = await loadImage("media/blackCat.png");
+  images[3] = await loadImage("media/dancingCat.png");
+  videos[0] = createVideo("media/goat.mp4");
+  videos[1] = createVideo("media/dog.mp4");
+  videos[2] = createVideo("media/blackCat.mp4");
+  videos[3] = createVideo("media/dancingCat.mp4");
+
+  for (let i = 0; i < 4; i++) {
+    //videos[i].elt.muted = true;
+    videos[i].hide();
+    meme[i] = {
+      x: width/2 + 750 - i * 500,
+      y: height/2 + 750 - 70,
+      grabbedBy: ""
+    };
+  }
+
+  // Load handPose and faceMesh
   handPose = await ml5.handPose();
-  
-  // Create the webcam video and hide it
+  faceMesh = await ml5.faceMesh(options);
+
   video = createCapture(VIDEO);
-  video.size(640, 480);
+  video.size(2000, 1500);
   video.hide();
-  
-  // start detecting hands from the webcam video
+
   handPose.detectStart(video, gotHands);
+  faceMesh.detectStart(video, gotFaces);
 }
 
-function draw() {
-  // Draw the webcam video
-  image(video, 0, 0, width, height);
 
-  // Draw all the tracked hand points
+function draw() {
+  background(0);
+
+  // Mirror the entire canvas
+  translate(width, 0);
+  scale(-1, 1);
+
+  image(video, width/2, height/2, 2000, 1500);
+
+  checkPGR();
+
+  // Draw PNG images
+  for (let i = 0; i < 4; i++) {
+    if (i != onFaceVideo) {
+      image(images[i], meme[i].x, meme[i].y, 160, 90);
+    }
+  }
+
+  // Draw video on the face
+  if (onFaceVideo != -1 && faces.length > 0) {
+    let nose = faces[0].keypoints[1];
+    let mVideo = videos[onFaceVideo];
+
+    greenScreen(mVideo);
+
+    image(mVideo,
+      nose.x + (width - 2000)/2,
+      nose.y + (height - 1500)/2,
+      320, 180
+    );
+  }
+}
+
+
+// Check pinch, grab and release
+function checkPGR() {
   for (let i = 0; i < hands.length; i++) {
     let hand = hands[i];
-    for (let j = 0; j < hand.keypoints.length; j++) {
-      let keypoint = hand.keypoints[j];
-      fill(0, 255, 0);
-      noStroke();
-      circle(keypoint.x, keypoint.y, 10);
+    let index = hand.keypoints[8];
+    let thumb = hand.keypoints[4];
+
+    let x = index.x + (width - 2000)/2;
+    let y = index.y + (height - 1500)/2;
+
+    let pinching = dist(index.x, index.y, thumb.x, thumb.y) < 35;
+    let holding = -1;
+
+    // Find the image held by this hand
+    for (let j = 0; j < 4; j++) {
+      if (meme[j].grabbedBy == hand.handedness) {
+        holding = j;
+      }
+    }
+
+    // Move or release
+    if (holding != -1) {
+      if (pinching) {
+        meme[holding].x = x;
+        meme[holding].y = y;
+      } else {
+        if (faces.length > 0) {
+          let nose = faces[0].keypoints[1];
+
+          if (dist(index.x, index.y, nose.x, nose.y) < 200) {
+            playOnFace(holding);
+          }
+        }
+
+        resetItem(holding);
+      }
+    }
+
+    // Grab a new image
+    else if (pinching) {
+      for (let j = 0; j < 4; j++) {
+        if (
+          j != onFaceVideo &&
+          meme[j].grabbedBy == "" &&
+          dist(x, y, meme[j].x, meme[j].y) < 80
+        ) {
+          meme[j].grabbedBy = hand.handedness;
+          break;
+        }
+      }
     }
   }
 }
 
-// Callback function for when handPose outputs data
+
+function playOnFace(i) {
+  if (onFaceVideo != -1) {
+    videos[onFaceVideo].pause();
+    resetItem(onFaceVideo);
+  }
+
+  onFaceVideo = i;
+  videos[i].time(0);
+  videos[i].loop();
+}
+
+
+// Reset image position
+function resetItem(i) {
+  meme[i].x = width/2 + 750 - i * 500;
+  meme[i].y = height/2 + 750 - 70;
+  meme[i].grabbedBy = "";
+}
+
+
+function greenScreen(mVideo) {
+  //Green screen keying
+  //Reference: https://idmp5.github.io/creative-coding/videos/
+  //Course example black pixels ➡️ red channel
+  //Reuse: green pixels ➡️ alpha channel = 0
+
+  mVideo.loadPixels();
+
+  if (mVideo.pixels.length === 0) {
+    return;
+  }
+
+  for (let i = 0; i < mVideo.pixels.length; i += 4) {
+    let r = mVideo.pixels[i + 0];
+    let g = mVideo.pixels[i + 1];
+    let b = mVideo.pixels[i + 2];
+
+    if (r < 100 && g > 100 && b < 100) {
+      mVideo.pixels[i + 3] = 0;
+    }
+  }
+
+  mVideo.updatePixels();
+}
+
+
 function gotHands(results) {
-  // save the output to the hands variable
   hands = results;
 }
 
-//==========================================
+function gotFaces(results) {
+  faces = results;
+}
 
-// let video;
-// let bodyPose;
-// let poses = [];
-// let connections;
 
-// function preload() {
-//   bodyPose = ml5.bodyPose();
-// }
 
-// function setup() {
-//   createCanvas(640, 480);
-//   video = createCapture(VIDEO);
-//   video.size(640, 480);
-//   video.hide();
-
-//   bodyPose.detectStart(video, gotPoses);
-//   connections = bodyPose.getSkeleton();
-// }
-
-// function draw() {
-//   image(video, 0, 0, width, height);
-
-//   for (let i = 0; i < poses.length; i++) {
-//     let pose = poses[i];
-//     let nose = pose.nose;
-//     if (nose.confidence > 0.2) {
-//       fill(255,0,0);
-//       textSize(200);
-//       textAlign(CENTER, CENTER);
-//       text("+",nose.x, nose.y);
-//     }
-//   }
-//   for (let i = 0; i < poses.length; i++) {
-//     let pose = poses[i];
-//     let keypoints = pose.keypoints;
-//     //console.log(keypoints);
-//     for (let j = 0; j < connections.length; j++) {
-//       fill(0, 255, 0);
-//       //ellipse(keypoints[j].x, keypoints[j].y, 10);
-//     }
-//   }
-// }
-
-// function gotPoses(results) {
-//   poses = results;
-// }
