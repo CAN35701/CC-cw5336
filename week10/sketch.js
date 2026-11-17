@@ -29,29 +29,29 @@ async function setup() {
     //videos[i].elt.muted = true;
     videos[i].hide();
     meme[i] = { //PNG
-      x:width/2-750+500*i,
-      y:height/2+500,
+      x:width/2-375+240*i,
+      y:height/2+175,
     };
   }
   handPose = await ml5.handPose({ flipped: true });
   faceMesh = await ml5.faceMesh(options);
 
   video = createCapture(VIDEO,{ flipped: true });
-  video.size(2000, 1500);
+  video.size(1000, 750);
   video.hide();
   handPose.detectStart(video, gotHands);
   faceMesh.detectStart(video, gotFaces);
 }
 
 function resetItem(i) {
-  meme[i].x = width/2-750+500*i;
-  meme[i].y = height/2+500;
+  meme[i].x = width/2-375+240*i;
+  meme[i].y = height/2+175;
 }
 
 function draw() {
   // Draw the webcam video
-  image(video, width/2, height/2, 2000, 1500);
-  textSize(50);
+  image(video, width/2, height/2, 1000, 750);
+  textSize(20);
   fill(0);
   textAlign(CENTER);
   text("Pinch a meme with your index finger and thumb to pick it up. \n Drag it into the face area and release your fingers to place it on your face.", windowWidth/2,80);
@@ -59,7 +59,7 @@ function draw() {
     //draw PNG
   for (let i = 0; i < 4; i++) {
     if (i != onFaceVideo) {
-      image(images[i],meme[i].x,meme[i].y,300,300);
+      image(images[i],meme[i].x,meme[i].y,200,200);
     }
   }
 
@@ -68,8 +68,8 @@ function draw() {
     let nose = faces[0].keypoints[1];
     greenScreen(videos[onFaceVideo]); // function to remove green background from the video
     image(videos[onFaceVideo],
-      nose.x+(width-2000)/2,nose.y+(height-1500)/2,
-      1280,720);
+      nose.x+(width-1000)/2,nose.y+(height-750)/2,
+      640,360);
   }
 
   if (faces.length > 0) {
@@ -77,7 +77,7 @@ function draw() {
       noFill();
       stroke(255);
       strokeWeight(4);
-      ellipse(nose.x+(width-2000)/2,nose.y+(height-1500)/2,600);
+      ellipse(nose.x+(windowWidth-1000)/2,nose.y+(windowHeight-750)/2,300);
     }
 
   if (hands.length > 0) {
@@ -85,21 +85,21 @@ function draw() {
     let a = hand.keypoints[8];
     let b = hand.keypoints[4];
 
-    let x = a.x+(width-2000)/2;// camera 2000x1500
-    let y = a.y+(height-1500)/2;//canvas is windowWidth x windowHeight
+    let x = a.x+(width-1000)/2;// camera 2000x1500
+    let y = a.y+(height-750)/2;//canvas is windowWidth x windowHeight
     noStroke();
     fill(255);
     ellipse(x,y,20,20);
-    ellipse(b.x+(width-2000)/2,b.y+(height-1500)/2,20);
+    ellipse(b.x+(width-1000)/2,b.y+(height-750)/2,20);
     noFill();
     stroke(255);
     strokeWeight(4);
-    line(x,y,b.x+(width-2000)/2,b.y+(height-1500)/2);
+    line(x,y,b.x+(width-1000)/2,b.y+(height-750)/2);
 
-    if (dist(a.x,a.y,b.x,b.y)<100) {
+    if (dist(a.x,a.y,b.x,b.y)<40) {
       if(grabbed == -1){
         for (let i = 0; i < 4; i++) {
-          if (i != onFaceVideo && dist(x,y,meme[i].x,meme[i].y)<150){
+          if (i != onFaceVideo && dist(x,y,meme[i].x,meme[i].y)<75){
             grabbed = i;
           }
         }
@@ -112,7 +112,7 @@ function draw() {
       if(grabbed != -1){
         if (faces.length > 0) {
           let nose = faces[0].keypoints[1];
-          if (dist(a.x, a.y, nose.x, nose.y) < 300) {
+          if (dist(a.x, a.y, nose.x, nose.y) < 150) {
             if (onFaceVideo != -1) {
               videos[onFaceVideo].pause();
               resetItem(onFaceVideo);
@@ -120,14 +120,11 @@ function draw() {
             onFaceVideo = grabbed; //change on face vedio
             videos[grabbed].time(0);
             videos[grabbed].loop();
-          } else{
-            resetItem(grabbed);
-            grabbed = -1;
           }
         }
+        resetItem(grabbed);
+        grabbed = -1;
       } 
-      if(grabbed == -1) {
-      }
     }
   }
 }
