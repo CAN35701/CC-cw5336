@@ -3,19 +3,19 @@ let handPose;
 let video;
 let hands = [];
 let faces = [];
-let options = { maxFaces: 1, refineLandmarks: false, flipHorizontal: false };
+let options = { maxFaces: 1, refineLandmarks: false, flipHorizontal: true };
 
 let images = [];
 let videos = [];
 let meme = [];
 
 let onFaceVideo = -1;
+let grabbed = -1;
 
 async function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth,windowHeight);
   pixelDensity(1);
   imageMode(CENTER);
-
   images[0] = await loadImage("media/goat.png");
   images[1] = await loadImage("media/dog.png");
   images[2] = await loadImage("media/blackCat.png");
@@ -25,160 +25,130 @@ async function setup() {
   videos[2] = createVideo("media/blackCat.mp4");
   videos[3] = createVideo("media/dancingCat.mp4");
 
-  for (let i = 0; i < 4; i++) {
+  for(let i=0;i<4;i++) {
     //videos[i].elt.muted = true;
     videos[i].hide();
-    meme[i] = {
-      x: width/2 + 750 - i * 500,
-      y: height/2 + 750 - 70,
-      grabbedBy: ""
+    meme[i] = { //PNG
+      x:width/2-750+500*i,
+      y:height/2+500,
     };
   }
-
-  // Load handPose and faceMesh
-  handPose = await ml5.handPose();
+  handPose = await ml5.handPose({ flipped: true });
   faceMesh = await ml5.faceMesh(options);
 
-  video = createCapture(VIDEO);
+  video = createCapture(VIDEO,{ flipped: true });
   video.size(2000, 1500);
   video.hide();
-
   handPose.detectStart(video, gotHands);
   faceMesh.detectStart(video, gotFaces);
 }
 
+function resetItem(i) {
+  meme[i].x = width/2-750+500*i;
+  meme[i].y = height/2+500;
+}
 
 function draw() {
-  background(0);
-
-  // Mirror the entire canvas
-  translate(width, 0);
-  scale(-1, 1);
-
+  // Draw the webcam video
   image(video, width/2, height/2, 2000, 1500);
+  textSize(50);
+  fill(0);
+  textAlign(CENTER);
+  text("Pinch a meme with your index finger and thumb to pick it up. \n Drag it into the face area and release your fingers to place it on your face.", windowWidth/2,80);
 
-  checkPGR();
-
-  // Draw PNG images
+    //draw PNG
   for (let i = 0; i < 4; i++) {
     if (i != onFaceVideo) {
-      image(images[i], meme[i].x, meme[i].y, 160, 90);
+      image(images[i],meme[i].x,meme[i].y,300,300);
     }
   }
 
-  // Draw video on the face
-  if (onFaceVideo != -1 && faces.length > 0) {
+  // draw video on the face
+  if (onFaceVideo!=-1 && faces.length>0) {
     let nose = faces[0].keypoints[1];
-    let mVideo = videos[onFaceVideo];
-
-    greenScreen(mVideo);
-
-    image(mVideo,
-      nose.x + (width - 2000)/2,
-      nose.y + (height - 1500)/2,
-      320, 180
-    );
+    greenScreen(videos[onFaceVideo]); // function to remove green background from the video
+    image(videos[onFaceVideo],
+      nose.x+(width-2000)/2,nose.y+(height-1500)/2,
+      1280,720);
   }
-}
 
-
-// Check pinch, grab and release
-function checkPGR() {
-  for (let i = 0; i < hands.length; i++) {
-    let hand = hands[i];
-    let index = hand.keypoints[8];
-    let thumb = hand.keypoints[4];
-
-    let x = index.x + (width - 2000)/2;
-    let y = index.y + (height - 1500)/2;
-
-    let pinching = dist(index.x, index.y, thumb.x, thumb.y) < 35;
-    let holding = -1;
-
-    // Find the image held by this hand
-    for (let j = 0; j < 4; j++) {
-      if (meme[j].grabbedBy == hand.handedness) {
-        holding = j;
-      }
+  if (faces.length > 0) {
+      let nose = faces[0].keypoints[1];
+      noFill();
+      stroke(255);
+      strokeWeight(4);
+      ellipse(nose.x+(width-2000)/2,nose.y+(height-1500)/2,600);
     }
 
-    // Move or release
-    if (holding != -1) {
-      if (pinching) {
-        meme[holding].x = x;
-        meme[holding].y = y;
-      } else {
-        if (faces.length > 0) {
-          let nose = faces[0].keypoints[1];
+  if (hands.length > 0) {
+    let hand = hands[0];
+    let a = hand.keypoints[8];
+    let b = hand.keypoints[4];
 
-          if (dist(index.x, index.y, nose.x, nose.y) < 200) {
-            playOnFace(holding);
+    let x = a.x+(width-2000)/2;// camera 2000x1500
+    let y = a.y+(height-1500)/2;//canvas is windowWidth x windowHeight
+    noStroke();
+    fill(255);
+    ellipse(x,y,20,20);
+    ellipse(b.x+(width-2000)/2,b.y+(height-1500)/2,20);
+    noFill();
+    stroke(255);
+    strokeWeight(4);
+    line(x,y,b.x+(width-2000)/2,b.y+(height-1500)/2);
+
+    if (dist(a.x,a.y,b.x,b.y)<100) {
+      if(grabbed == -1){
+        for (let i = 0; i < 4; i++) {
+          if (i != onFaceVideo && dist(x,y,meme[i].x,meme[i].y)<150){
+            grabbed = i;
           }
         }
-
-        resetItem(holding);
       }
-    }
-
-    // Grab a new image
-    else if (pinching) {
-      for (let j = 0; j < 4; j++) {
-        if (
-          j != onFaceVideo &&
-          meme[j].grabbedBy == "" &&
-          dist(x, y, meme[j].x, meme[j].y) < 80
-        ) {
-          meme[j].grabbedBy = hand.handedness;
-          break;
+      if(grabbed != -1){
+        meme[grabbed].x = x;
+        meme[grabbed].y = y;
+      }
+    } else {
+      if(grabbed != -1){
+        if (faces.length > 0) {
+          let nose = faces[0].keypoints[1];
+          if (dist(a.x, a.y, nose.x, nose.y) < 300) {
+            if (onFaceVideo != -1) {
+              videos[onFaceVideo].pause();
+              resetItem(onFaceVideo);
+            }
+            onFaceVideo = grabbed; //change on face vedio
+            videos[grabbed].time(0);
+            videos[grabbed].loop();
+          } else{
+            resetItem(grabbed);
+            grabbed = -1;
+          }
         }
+      } 
+      if(grabbed == -1) {
       }
     }
   }
 }
 
-
-function playOnFace(i) {
-  if (onFaceVideo != -1) {
-    videos[onFaceVideo].pause();
-    resetItem(onFaceVideo);
-  }
-
-  onFaceVideo = i;
-  videos[i].time(0);
-  videos[i].loop();
-}
-
-
-// Reset image position
-function resetItem(i) {
-  meme[i].x = width/2 + 750 - i * 500;
-  meme[i].y = height/2 + 750 - 70;
-  meme[i].grabbedBy = "";
-}
-
-
+//Green screen keying
+//Reference: https://idmp5.github.io/creative-coding/videos/
+//Course example black pixels ➡️ red channel
+//Reuse: green pixels ➡️ alpha channel = 0
 function greenScreen(mVideo) {
-  //Green screen keying
-  //Reference: https://idmp5.github.io/creative-coding/videos/
-  //Course example black pixels ➡️ red channel
-  //Reuse: green pixels ➡️ alpha channel = 0
-
   mVideo.loadPixels();
-
   if (mVideo.pixels.length === 0) {
     return;
   }
-
   for (let i = 0; i < mVideo.pixels.length; i += 4) {
     let r = mVideo.pixels[i + 0];
     let g = mVideo.pixels[i + 1];
     let b = mVideo.pixels[i + 2];
-
-    if (r < 100 && g > 100 && b < 100) {
+    if (r<100 && g>100 && b<100) {
       mVideo.pixels[i + 3] = 0;
     }
   }
-
   mVideo.updatePixels();
 }
 
