@@ -50,7 +50,7 @@ function resetItem(i) {
 
 function draw() {
   translate(width/2,height/2);
-  scale(0.5);
+  scale(0.8);
   translate(-width/2,-height/2);
   // Draw the webcam video
   image(video, width/2, height/2, 1000, 750);
