@@ -49,12 +49,15 @@ function resetItem(i) {
 }
 
 function draw() {
+  translate(width/2,height/2);
+  scale(0.5);
+  translate(-width/2,-height/2);
   // Draw the webcam video
   image(video, width/2, height/2, 1000, 750);
-  textSize(20);
+  textSize(25);
   fill(0);
   textAlign(CENTER);
-  text("Pinch a meme with your index finger and thumb to pick it up. \n Drag it into the face area and release your fingers to place it on your face.", windowWidth/2,80);
+  text("Pinch a meme with your index finger and thumb to pick it up. \n Drag it into the face area and release your fingers to place it on your face.", windowWidth/2,30);
 
     //draw PNG
   for (let i = 0; i < 4; i++) {
